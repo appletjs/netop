@@ -1,0 +1,31 @@
+{
+  "name": "netop",
+  "version": "0.0.1",
+  "description": "Promise based HTTP client for the browser",
+  "main": "dist/cjs.js",
+  "module": "dist/esm.js",
+  "unpkg": "dist/umd.js",
+  "typings": "index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Maofeng Zhang <japplet@163.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appletjs/netop.git"
+  },
+  "keywords": [
+    "fetch",
+    "interceptor"
+  ],
+  "bugs": {
+    "url": "https://github.com/appletjs/netop/issues"
+  },
+  "homepage": "https://github.com/appletjs/netop#readme",
+  "devDependencies": {
+    "applet": "0.0.10",
+    "rollup": "^0.62.0"
+  }
+}

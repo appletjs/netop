@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html, body, #app, #content {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    input,
+    textarea {
+      display: block;
+      width: 100%;
+    }
+
+    #app {
+      display: table;
+      background-color: #eee;
+    }
+
+    #main {
+      position: relative;
+      display: table-cell;
+    }
+
+    #aside {
+      display: table-cell;
+      width: 30%;
+      min-width: 250px;
+      background-color: #fff;
+    }
+
+    #content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .result {
+      position: relative;
+      font-size: 12px;
+      background-color: #fff;
+      margin-bottom: 10px;
+      width: 100%;
+      line-height: 1.2;
+    }
+
+    .result .log {
+      border-left: 3px solid gray;
+      padding: 10px;
+    }
+
+    .result .info {
+      border-left: 3px solid green;
+      padding: 10px;
+    }
+
+    .result .err {
+      border-left: 3px solid red;
+      padding: 10px;
+    }
+
+    .result .warn {
+      border-left: 3px solid yellowgreen;
+      padding: 10px;
+    }
+    .dismiss {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: block;
+      text-decoration: none;
+      width: 28px;
+      height: 28px;
+      background-color: gray;
+      line-height: 24px;
+      text-align: center;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="main">
+    <div id="content"></div>
+  </div>
+  <div id="aside">
+    <div id="form">
+      <label for="url">请求地址</label>
+      <input type="text" id="url">
+      <label for="body">数据</label>
+      <textarea id="body"></textarea>
+    </div>
+    <div id="controls">
+      <button onclick="request('GET')">1、GET</button>
+      <button onclick="request('POST')">2、POST</button>
+      <button onclick="request('PUT')">3、PUT</button>
+      <button onclick="request('PATCH')">4、PATCH</button>
+      <button onclick="request('DELETE')">5、DELETE</button>
+      <button onclick="request('OPTIONS')">6、OPTIONS</button>
+      <button onclick="request('HEAD')">7、HEAD</button>
+    </div>
+  </div>
+</div>
+<script src="//unpkg.com/applet@0.0.10/browser.js"></script>
+<script src="netop.js"></script>
+<script>
+  var $result = document.querySelector('#content');
+  var $url = document.querySelector('#url');
+  var $body = document.querySelector('#body');
+
+  function each(arr, fn) {
+    [].forEach.call(arr, fn);
+  }
+
+  function createElement(tag, className, html) {
+    var el = document.createElement(tag);
+    className && (el.className = className);
+    if (!html) return el;
+    if (!html.nodeType) html = document.createTextNode(html);
+    el.appendChild(html);
+    return el;
+  }
+
+  function code(code) {
+    return createElement('pre', null, createElement('code', null, code));
+  }
+
+  function getData() {
+    return {
+      url: $url.value.trim(),
+      body: $body.value.trim()
+    };
+  }
+
+  function Env() {
+    const container = createElement('div', 'result');
+    $result.appendChild(container);
+    container.scrollIntoView({block: 'end'});
+
+    const dismiss = createElement('div', 'dismiss');
+    dismiss.innerHTML = '&times;';
+    container.appendChild(dismiss);
+    dismiss.onclick = function() {
+      $result.removeChild(container);
+    };
+
+    function createWriter(parent) {
+      return function (message) {
+        parent.appendChild(createElement('div', null, message));
+      };
+    }
+
+    function createLogger(type) {
+      return function () {
+        var box = createElement('div', type);
+        var write = createWriter(box);
+        each(arguments, write);
+        container.appendChild(box);
+        box.scrollIntoView({block: 'end'});
+      };
+    }
+
+    this.log = createLogger('log');
+    this.info = createLogger('info');
+    this.err = createLogger('err');
+    this.warn = createLogger('warn');
+  }
+
+  function request(method) {
+    var env = new Env();
+
+    return request(
+      getData(),
+      env.log,
+      env.err,
+      env.warn,
+      env.info
+    );
+
+    function request(data, log, err, warn, info) {
+      if (!data.url) {
+        return log('没有URL');
+      }
+
+      log('HTTP ' + method + ' ' + data.url);
+
+      return netop({method})
+        .use(function (ctx, next) {
+          // ctx.mode = 'no-cors';
+          info('[Config]', code(JSON.stringify(ctx, null, 2)));
+          return next();
+        })
+        .with(data.url)
+        .use(function (request, next) {
+          info('[Request]', request);
+          return next();
+        })
+        .send(method !== 'GET' && method !== 'HEAD' ? data.body : null)
+        .then(function (res) {
+          const args = ['[Response]', 'status: ' + res.status];
+          return res.clone().text().then(function (data) {
+            args.push('text:');
+            args.push(code(data));
+          }).then(function () {
+            return res.clone().json().then(function (data) {
+              args.push('json:');
+              args.push(code(JSON.stringify(data, null, 2)));
+            }).catch(function () {});
+          }).then(function () {
+            info.apply(null, args);
+          });
+        })
+        .catch(function (e) {
+          var args = ['[Error]', code(JSON.stringify(e.stack || e.message || e))];
+          if (e.config) args.push(code(JSON.stringify(e.config, null, 2)));
+          if (e.request) args.push(e.request.toString());
+          if (e.response) args.push(e.response.toString());
+          err.apply(null, args);
+        });
+    };
+  }
+</script>
+</body>
+</html>
