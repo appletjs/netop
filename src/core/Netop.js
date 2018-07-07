@@ -90,6 +90,8 @@ export default class Netop extends Applet {
   send(body) {
     cutoff(this, 'sent');
 
+    this.init.body = body;
+
     // patch
     if (!this.used) {
       this.with();

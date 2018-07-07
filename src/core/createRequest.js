@@ -57,7 +57,7 @@ function validate(name, config) {
   else return value != null;
 }
 
-export default function createOptions(config) {
+export default function createRequest(config) {
   const init = {};
 
   initProps.forEach(function (name) {

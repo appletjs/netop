@@ -264,7 +264,7 @@ function validate(name, config) {
   else return value != null;
 }
 
-function createOptions(config) {
+function createRequest(config) {
   const init = {};
 
   initProps.forEach(function (name) {
@@ -414,7 +414,7 @@ class Netop extends Applet {
     this.used = true;
 
     this.use(function (config, next) {
-      const request = createOptions(config);
+      const request = createRequest(config);
       const handle = used.callback(() => request);
 
       gather('config', config);
@@ -462,6 +462,8 @@ class Netop extends Applet {
 
   send(body) {
     cutoff(this, 'sent');
+
+    this.init.body = body;
 
     // patch
     if (!this.used) {
