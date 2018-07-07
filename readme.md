@@ -1,7 +1,21 @@
 ## Netop
 
+[![version](https://img.shields.io/npm/v/netop.svg?style=flat-square)](https://www.npmjs.com/package/netop)
+[![downloads](https://img.shields.io/npm/dt/netop.svg?style=flat-square)](https://www.npmjs.com/package/netop)
+
+
 Netop 是一个基于 promise 的 HTTP 库，目前可用在浏览器端。
 
+## 安装
+
+```bash
+$ npm i netop applet --save
+```
+
+```html
+<script src="//unpkg.com/applet"></script>
+<script src="//unpkg.com/netop"></script>
+```
 
 ## Features
 
@@ -160,3 +174,8 @@ netop({})
 
 - `function` callback
 
+
+
+## License
+
+MIT © 2018, <a href="mailto:japplet@163.com" title="japplet@163.com">Maofeng Zhang</a>
