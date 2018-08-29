@@ -4,6 +4,7 @@ import inStandardBrowser from '../utils/inStandardBrowser';
 import isURLSameOrigin from '../utils/isURLSameOrigin';
 import readCookie from '../utils/readCookie';
 
+const self = typeof window !== 'undefined' ? window : {}
 const hasOwn = Object.prototype.hasOwnProperty;
 const supportSearchParams = 'URLSearchParams' in self;
 const supportBlob = 'FileReader' in self && 'Blob' in self && (function () {

@@ -1,6 +1,6 @@
 {
   "name": "netop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Promise based HTTP client for the browser",
   "main": "dist/cjs.js",
   "module": "dist/esm.js",
