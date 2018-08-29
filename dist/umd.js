@@ -217,6 +217,7 @@
     return (match ? decodeURIComponent(match[3]) : null);
   }
 
+  const self = typeof window !== 'undefined' ? window : {};
   const hasOwn = Object.prototype.hasOwnProperty;
   const supportSearchParams = 'URLSearchParams' in self;
   const supportBlob = 'FileReader' in self && 'Blob' in self && (function () {
